@@ -37,9 +37,18 @@
           src = pkgs.fetchFromGitHub {
             owner = "dlang-community";
             repo = "dfmt";
-            rev = "v${version}";
+            tag = "v${version}";
             hash = "sha256-QjmYPIQFs+91jB1sdaFoenfWt5TLXyEJauSSHP2fd+M=";
           };
+
+          preBuild = ''
+            mkdir -p bin/
+            echo ${src.tag} > bin/dubhash.txt
+          '';
+
+          patches = [
+            ./dfmt_fix_version.patch
+          ];
 
           dubLock = ./dfmt-dub-lock.json;
 
@@ -50,6 +59,12 @@
             install -Dm755 bin/dfmt -t $out/bin
             runHook postInstall
           '';
+
+          nativeInstallCheckInputs = with pkgs; [
+            versionCheckHook
+          ];
+
+          doInstallCheck = true;
         };
       };
     };
