@@ -15,9 +15,18 @@
           src = pkgs.fetchFromGitHub {
             owner = "dlang-community";
             repo = "D-Scanner";
-            rev = "v${version}";
+            tag = "v${version}";
             hash = "sha256-7lZhYlK07VWpSRnzawJ2RL69/U/AH/qPyQY4VfbnVn4=";
           };
+
+          preBuild = ''
+            mkdir -p bin/
+            echo "v${version}" > bin/dubhash.txt
+          '';
+
+          patches = [
+            ./dscanner_fix_version.patch
+          ];
 
           dubLock = ./dscanner-dub-lock.json;
 
@@ -28,6 +37,12 @@
             install -Dm755 bin/dscanner -t $out/bin
             runHook postInstall
           '';
+
+          nativeInstallCheckInputs = with pkgs; [
+            versionCheckHook
+          ];
+
+          doInstallCheck = true;
         };
 
         dfmt = pkgs.buildDubPackage rec {
@@ -43,7 +58,7 @@
 
           preBuild = ''
             mkdir -p bin/
-            echo ${src.tag} > bin/dubhash.txt
+            echo "v${version}" > bin/dubhash.txt
           '';
 
           patches = [
