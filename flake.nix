@@ -81,6 +81,29 @@
 
           doInstallCheck = true;
         };
+
+        dpp = pkgs.buildDubPackage rec {
+          pname = "dpp";
+          version = "0.6.0";
+
+          src = pkgs.fetchFromGitHub {
+            owner = "atilaneves";
+            repo = "dpp";
+            tag = "v${version}";
+            hash = "sha256-8zcjZ8EV5jdZrRCHkzxu9NeehY2/5AfOSdzreFC9z3c=";
+          };
+
+          nativeBuildInputs = with pkgs; [ dtools ];
+          buildInputs = with pkgs; [ libclang ];
+
+          dubLock = ./dpp-dub-lock.json;
+
+          installPhase = ''
+            runHook preInstall
+            install -Dm755 bin/d++ -t $out/d++
+            runHook postInstall
+          '';
+        };
       };
     };
 }
